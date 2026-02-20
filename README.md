@@ -1,59 +1,184 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This repository contains the backend API built with **Laravel 12** for the JLabs technical assessment.
 
-## About Laravel
+The API handles authentication and IP search history storage used by the React web application.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tech Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Laravel 12
+- PHP 8.2+
+- MySQL
+- Laravel Sanctum (Token Authentication)
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Features
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- User authentication using email and password
+- Token-based API authentication
+- Retrieve authenticated user information
+- Save searched IP addresses
+- Display user search history
+- Delete multiple history records
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Default Login Credentials
 
-### Premium Partners
+These credentials are created using a database seeder.
+Email: ej@jlabs.test
+Password: password123
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## Requirements
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Make sure the following are installed:
 
-## Code of Conduct
+- PHP >= 8.2
+- Composer
+- MySQL
+- Git
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## Installation
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Clone the repository:
+```bash
+git clone https://github.com/EJARNAD0/jlabs-api.git
+cd jlabs-api
+Install PHP dependencies:
 
-## License
+bash
+composer install
+Copy environment file:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+bash
+cp .env.example .env
+Generate application key:
+
+bash
+php artisan key:generate
+Database Setup
+Create a MySQL database:
+
+sql
+CREATE DATABASE jlabs_exam;
+Update your .env file:
+
+env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=jlabs_exam
+DB_USERNAME=root
+DB_PASSWORD=
+Run migrations and seed the default user:
+
+bash
+php artisan migrate --seed
+Running the Application
+Start the development server:
+
+bash
+php artisan serve
+API will be available at:
+
+text
+http://localhost:8000
+API Endpoints
+Authentication
+Method	Endpoint	Description	Request Body
+POST	/api/login	Authenticate user and return token	email, password
+POST	/api/logout	Invalidate current token	Requires Bearer token
+GET	/api/user	Get authenticated user info	Requires Bearer token
+IP Search History
+Method	Endpoint	Description	Request Body
+GET	/api/history	Get user's search history	Requires Bearer token
+POST	/api/history	Save IP address search	ip_address
+DELETE	/api/history	Delete multiple history records	ids (array of history IDs)
+API Usage Examples
+Login
+bash
+curl -X POST http://localhost:8000/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"ej@jlabs.test","password":"password123"}'
+Response:
+
+json
+{
+  "token": "1|abcdefghijklmnopqrstuvwxyz123456",
+  "user": {
+    "id": 1,
+    "email": "ej@jlabs.test",
+    "created_at": "2024-01-01T00:00:00.000000Z"
+  }
+}
+Get User Info
+bash
+curl -X GET http://localhost:8000/api/user \
+  -H "Authorization: Bearer {your-token}"
+Save IP Search
+bash
+curl -X POST http://localhost:8000/api/history \
+  -H "Authorization: Bearer {your-token}" \
+  -H "Content-Type: application/json" \
+  -d '{"ip_address":"8.8.8.8"}'
+Get Search History
+bash
+curl -X GET http://localhost:8000/api/history \
+  -H "Authorization: Bearer {your-token}"
+Delete Multiple History Records
+bash
+curl -X DELETE http://localhost:8000/api/history \
+  -H "Authorization: Bearer {your-token}" \
+  -H "Content-Type: application/json" \
+  -d '{"ids":[1,2,3]}'
+Logout
+bash
+curl -X POST http://localhost:8000/api/logout \
+  -H "Authorization: Bearer {your-token}"
+Project Structure
+text
+jlabs-api/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── AuthController.php
+│   │   │   └── HistoryController.php
+│   │   └── Middleware/
+│   ├── Models/
+│   │   ├── User.php
+│   │   └── History.php
+│   └── Providers/
+├── database/
+│   ├── migrations/
+│   └── seeders/
+│       └── DatabaseSeeder.php
+├── routes/
+│   └── api.php
+└── .env
+Error Handling
+The API returns appropriate HTTP status codes:
+
+200 - Success
+
+201 - Resource created
+
+400 - Bad request
+
+401 - Unauthorized
+
+404 - Not found
+
+422 - Validation error
+
+500 - Server error
+
+Frontend Repository
+The React frontend application that consumes this API can be found at:
+https://github.com/EJARNAD0/jlabs-web
+
