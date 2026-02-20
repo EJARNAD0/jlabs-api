@@ -1,3 +1,4 @@
+# JLabs API
 
 This repository contains the backend API built with **Laravel 12** for the JLabs technical assessment.
 
@@ -11,6 +12,7 @@ The API handles authentication and IP search history storage used by the React w
 - PHP 8.2+
 - MySQL
 - Laravel Sanctum (Token Authentication)
+- Node.js & NPM
 
 ---
 
@@ -28,8 +30,9 @@ The API handles authentication and IP search history storage used by the React w
 ## Default Login Credentials
 
 These credentials are created using a database seeder.
-Email: ej@jlabs.test
-Password: password123
+
+- **Email:** ej@jlabs.test
+- **Password:** password123
 
 ---
 
@@ -40,109 +43,139 @@ Make sure the following are installed:
 - PHP >= 8.2
 - Composer
 - MySQL
+- Node.js & NPM
 - Git
 
 ---
 
 ## Installation
 
-Clone the repository:
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/EJARNAD0/jlabs-api.git
+   cd jlabs-api
+   ```
+
+2. Run the automated setup script:
+   ```bash
+   composer run setup
+   ```
+   *This command installs PHP dependencies, sets up the `.env` file, generates the application key, runs migrations, installs NPM dependencies, and builds assets.*
+
+### Manual Installation (Alternative)
+
+If you prefer to install manually:
+
 ```bash
-git clone https://github.com/EJARNAD0/jlabs-api.git
-cd jlabs-api
-Install PHP dependencies:
-
-bash
 composer install
-Copy environment file:
-
-bash
 cp .env.example .env
-Generate application key:
-
-bash
 php artisan key:generate
-Database Setup
-Create a MySQL database:
-
-sql
-CREATE DATABASE jlabs_exam;
-Update your .env file:
-
-env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=jlabs_exam
-DB_USERNAME=root
-DB_PASSWORD=
-Run migrations and seed the default user:
-
-bash
+# Configure database in .env
 php artisan migrate --seed
-Running the Application
-Start the development server:
+npm install
+npm run build
+```
 
-bash
-php artisan serve
-API will be available at:
+---
 
-text
-http://localhost:8000
-API Endpoints
-Authentication
-Method	Endpoint	Description	Request Body
-POST	/api/login	Authenticate user and return token	email, password
-POST	/api/logout	Invalidate current token	Requires Bearer token
-GET	/api/user	Get authenticated user info	Requires Bearer token
-IP Search History
-Method	Endpoint	Description	Request Body
-GET	/api/history	Get user's search history	Requires Bearer token
-POST	/api/history	Save IP address search	ip_address
-DELETE	/api/history	Delete multiple history records	ids (array of history IDs)
-API Usage Examples
-Login
-bash
+## Running the Application
+
+Start the development server (runs Laravel server, queue worker, and Vite):
+
+```bash
+composer run dev
+```
+
+The API will be available at: `http://localhost:8000`
+
+---
+
+## API Endpoints
+
+### Authentication
+
+| Method | Endpoint | Description | Request Body |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/login` | Authenticate user and return token | `email`, `password` |
+| `POST` | `/api/logout` | Invalidate current token | *Requires Bearer token* |
+| `GET` | `/api/me` | Get authenticated user info | *Requires Bearer token* |
+
+### IP Search History
+
+| Method | Endpoint | Description | Request Body |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/histories` | Get user's search history | *Requires Bearer token* |
+| `POST` | `/api/histories` | Save IP address search | `ip` (required), `payload` (optional array) |
+| `DELETE` | `/api/histories` | Delete multiple history records | `ids` (array of history IDs) |
+
+---
+
+## API Usage Examples
+
+### Login
+
+```bash
 curl -X POST http://localhost:8000/api/login \
   -H "Content-Type: application/json" \
   -d '{"email":"ej@jlabs.test","password":"password123"}'
-Response:
+```
 
-json
+**Response:**
+```json
 {
   "token": "1|abcdefghijklmnopqrstuvwxyz123456",
   "user": {
     "id": 1,
     "email": "ej@jlabs.test",
-    "created_at": "2024-01-01T00:00:00.000000Z"
+    "name": "Test User"
   }
 }
-Get User Info
-bash
-curl -X GET http://localhost:8000/api/user \
+```
+
+### Get User Info
+
+```bash
+curl -X GET http://localhost:8000/api/me \
   -H "Authorization: Bearer {your-token}"
-Save IP Search
-bash
-curl -X POST http://localhost:8000/api/history \
+```
+
+### Save IP Search
+
+```bash
+curl -X POST http://localhost:8000/api/histories \
   -H "Authorization: Bearer {your-token}" \
   -H "Content-Type: application/json" \
-  -d '{"ip_address":"8.8.8.8"}'
-Get Search History
-bash
-curl -X GET http://localhost:8000/api/history \
+  -d '{"ip":"8.8.8.8", "payload": {"city": "Mountain View"}}'
+```
+
+### Get Search History
+
+```bash
+curl -X GET http://localhost:8000/api/histories \
   -H "Authorization: Bearer {your-token}"
-Delete Multiple History Records
-bash
-curl -X DELETE http://localhost:8000/api/history \
+```
+
+### Delete Multiple History Records
+
+```bash
+curl -X DELETE http://localhost:8000/api/histories \
   -H "Authorization: Bearer {your-token}" \
   -H "Content-Type: application/json" \
   -d '{"ids":[1,2,3]}'
-Logout
-bash
+```
+
+### Logout
+
+```bash
 curl -X POST http://localhost:8000/api/logout \
   -H "Authorization: Bearer {your-token}"
-Project Structure
-text
+```
+
+---
+
+## Project Structure
+
+```
 jlabs-api/
 ├── app/
 │   ├── Http/
@@ -152,7 +185,7 @@ jlabs-api/
 │   │   └── Middleware/
 │   ├── Models/
 │   │   ├── User.php
-│   │   └── History.php
+│   │   └── IpHistory.php
 │   └── Providers/
 ├── database/
 │   ├── migrations/
@@ -161,24 +194,25 @@ jlabs-api/
 ├── routes/
 │   └── api.php
 └── .env
-Error Handling
+```
+
+---
+
+## Error Handling
+
 The API returns appropriate HTTP status codes:
 
-200 - Success
+- **200** - Success
+- **201** - Resource created
+- **400** - Bad request
+- **401** - Unauthorized
+- **404** - Not found
+- **422** - Validation error
+- **500** - Server error
 
-201 - Resource created
+---
 
-400 - Bad request
+## Frontend Repository
 
-401 - Unauthorized
-
-404 - Not found
-
-422 - Validation error
-
-500 - Server error
-
-Frontend Repository
 The React frontend application that consumes this API can be found at:
-https://github.com/EJARNAD0/jlabs-web
-
+[https://github.com/EJARNAD0/jlabs-web](https://github.com/EJARNAD0/jlabs-web)
