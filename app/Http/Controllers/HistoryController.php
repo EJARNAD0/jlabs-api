@@ -9,7 +9,8 @@ class HistoryController extends Controller
 {
     public function index(Request $request)
     {
-        return IpHistory::where('user_id', $request->user()->id)
+        return IpHistory::query()
+            ->where('user_id', $request->user()->id)
             ->latest()
             ->get();
     }
@@ -37,7 +38,8 @@ class HistoryController extends Controller
             'ids.*' => ['integer'],
         ]);
 
-        IpHistory::where('user_id', $request->user()->id)
+        IpHistory::query()
+            ->where('user_id', $request->user()->id)
             ->whereIn('id', $data['ids'])
             ->delete();
 
