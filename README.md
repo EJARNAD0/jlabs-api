@@ -29,7 +29,7 @@ The API handles authentication and IP search history storage used by the React w
 
 ## Default Login Credentials
 
-These credentials are created using a database seeder.
+These credentials are created using a user seeder.
 
 - **Email:** ej@jlabs.test
 - **Password:** password123
@@ -190,7 +190,7 @@ jlabs-api/
 ├── database/
 │   ├── migrations/
 │   └── seeders/
-│       └── DatabaseSeeder.php
+│       └── UserSeeder.php
 ├── routes/
 │   └── api.php
 └── .env
