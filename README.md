@@ -127,7 +127,7 @@ curl -X POST http://localhost:8000/api/login \
   "user": {
     "id": 1,
     "email": "ej@jlabs.test",
-    "name": "Test User"
+    "name": "EJ Arnado"
   }
 }
 ```
